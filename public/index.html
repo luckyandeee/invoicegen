@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <title>Invoice Generator</title>
+</head>
+
+<body>
+  <h1>Invoice Generator</h1>
+  <form id="invoice-form">
+    <h2>Invoice Generator</h2>
+    <label for="traveldate">Travel Date:</label>
+    <input type="date" id="traveldate" name="traveldate"><br>
+    <label for="tripenddate">Trip end Date:</label>
+    <input type="date" id="tripenddate" name="tripenddate"><br>
+    <label for="placetovisit">Place to visit:</label>
+    <input type="text" id="placetovisit" name="placetovisit" autocomplete="off"><br>
+    <label for="typeofbooking">Type of booking:</label><br>
+    <input type="radio" name="typeofbooking" id="Solo" value="Solo">
+    <label for="Solo" id="two">Solo</label>
+    <input type="radio" name="typeofbooking" id="Group" value="Group">
+    <label for="Group" id="two">Group</label>
+    <input type="radio" name="typeofbooking" id="Couple" value="Couple">
+    <label for="Couple" id="two">Couple</label>
+    <input type="radio" name="typeofbooking" id="personalgroup" value="Personal Group">
+    <label for="personalgroup" id="two">Personal Group</label>
+    <br>
+    <h2>Guest Details</h2>
+    <label for="customername">Customer Name:</label>
+    <input type="text" id="customername" name="customername" autocomplete="off"><br>
+    <label for="customerphone">Customer Phone:</label>
+    <input type="tel" id="customerphone" name="customerphone" autocomplete="off"><br>
+    <label for="customeremail">Customer Email:</label>
+    <input type="email" id="customeremail" name="customeremail" autocomplete="off"><br>
+    <label for="customeraddress">Customer Address:</label>
+    <input type="text" id="customeraddress" name="customeraddress" autocomplete="off"><br>
+    <h2>Tariff Details</h2>
+    <label for="tariff">Tariff:</label>
+    <input type="number" id="tariff" name="tariff"><br>
+    <label for="numberofpax">Number of pax:</label>
+    <input type="number" id="numberofpax" name="numberofpax"><br>
+    <label>Booking Status:</label><br>
+    <input type="radio" name="bookingstatus" id="confirmed" value="Confirmed">
+    <label for="confirmed" id="one">Confirmed</label>
+    <input type="radio" name="bookingstatus" id="processing" value="Processing">
+    <label for="processing" id="one">Processing</label>
+    <input type="radio" name="bookingstatus" id="postponed" value="Postponed">
+    <label for="postponed" id="one">Postponed</label>
+    <input type="radio" name="bookingstatus" id="cancelled" value="Cancelled">
+    <label for="cancelled" id="one">Cancelled</label>
+    <br>
+    <label for="inclusions">if any Inclusions:</label>
+    <input type="text" id="inclusions" name="inclusions" autocomplete="off"><br>
+    <!-- <label for="totalfare">Total fare:</label>
+    <input type="number" id="totalfare" name="totalfare"><br> -->
+    <label for="advanceamt">Advance amount paid:</label>
+    <input type="number" id="advanceamt" name="advanceamt"><br>
+    <!-- <label for="balanceamt">Balance Amount to be paid:</label>
+    <input type="number" id="balanceamt" name="balanceamt"><br> -->
+    <label for="aadhar">Customer AADHAR number:</label>
+    <input type="number" id="aadhar" name="aadhar"><br>
+
+    <button type="submit">Generate Invoice</button>
+  </form>
+
+  <script>
+    document.getElementById('invoice-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const formData = {
+        bookingid: new Date().getTime(),
+        bookingdate: new Date().toLocaleDateString('en-IN'),
+        traveldate: document.getElementById("traveldate").value,
+        tripenddate: document.getElementById("tripenddate").value,
+        placetovisit: document.getElementById("placetovisit").value,
+        typeofbooking: document.querySelector('input[name="typeofbooking"]:checked').value,
+        customername: document.getElementById("customername").value,
+        customerphone: document.getElementById("customerphone").value,
+        customeremail: document.getElementById("customeremail").value,
+        customeraddress: document.getElementById("customeraddress").value,
+        tariff: document.getElementById("tariff").value,
+        numberofpax: document.getElementById("numberofpax").value,
+        bookingstatus: document.querySelector('input[name="bookingstatus"]:checked').value,
+        inclusions: document.getElementById("inclusions").value,
+        totalfare: document.getElementById("tariff").value * document.getElementById("numberofpax").value,
+        advanceamt: document.getElementById("advanceamt").value,
+        balanceamt: document.getElementById("tariff").value * document.getElementById("numberofpax").value - document.getElementById("advanceamt").value,
+        aadhar: document.getElementById("aadhar").value,
+      };
+      console.log(formData);
+        fetch('/generate-invoice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            downloadPDF();
+
+          if (data.error) {
+            alert('Error: ' + data.error);
+          } else {
+            alert('Invoice generated and sent successfully');
+            window.location.href = data.whatsappLink;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while processing. Please try again.');
+        });
+    });
+
+
+    function downloadPDF() {
+         var bookingid = new Date().getTime('now');
+         var bookingdate = new Date().toLocaleDateString('en-IN');
+         var traveldate = document.getElementById("traveldate").value;
+         var tripenddate = document.getElementById("tripenddate").value;
+         var placetovisit = document.getElementById("placetovisit").value;
+         var typeofbooking = document.querySelector('input[name="typeofbooking"]:checked').value;
+         var customername = document.getElementById("customername").value;
+         var customerphone = document.getElementById("customerphone").value;
+         var customeremail = document.getElementById("customeremail").value;
+         var customeraddress = document.getElementById("customeraddress").value;
+         var tariff = document.getElementById("tariff").value;
+         var numberofpax = document.getElementById("numberofpax").value;
+         var bookingstatus = document.querySelector('input[name="bookingstatus"]:checked').value;
+         var inclusions = document.getElementById("inclusions").value;
+         var totalfare = tariff*numberofpax;
+         var advanceamt = document.getElementById("advanceamt").value;
+         var balanceamt = totalfare-advanceamt;
+         var aadhar = document.getElementById("aadhar").value;
+         var imgData = 'data:image/png;base64,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'
+         
+         
+         var doc = new jsPDF();
+         doc.addImage(imgData, 'PNG', 0, 10, 90, 30);
+         
+         doc.setFontType("bold");
+         doc.setFontSize("16");
+         doc.text(80, 50, "Travel Confirmation Voucher");
+         doc.setFontType("bold");
+         doc.setFontSize("12");
+         doc.text(35, 60, "BOOKING ID:");
+         doc.text(35, 70, "BOOKING DATE:");
+         doc.text(35, 80, "TRIP START DATE:"); doc.text(130, 80, "TRIP END DATE:");
+         doc.text(35, 90, "PLACES TO VISIT:");
+         doc.text(35, 100, "TYPE OF BOOKING:");
+         doc.setFontType("normal");
+         doc.setFontSize("12");
+         doc.text(80, 60, " " + bookingid);
+         doc.text(80, 70, " " + bookingdate);
+         doc.text(80, 80, " " + traveldate); doc.text(175, 80,""+tripenddate);
+         doc.text(80, 90, " " + placetovisit);
+         doc.text(80, 100, " " + typeofbooking);
+         doc.setFontType("bold");
+         doc.setFontSize("16");
+         doc.text(80, 120, "Guest Details");
+         doc.setFontType("bold");
+         doc.setFontSize("12");
+         doc.text(35, 130, "Name:");
+         doc.text(35, 140, "Contact No:");
+         doc.text(35, 150, "Email:");
+         doc.text(35, 160, "AADHAR number:");
+         doc.text(35, 170, "Address:");
+         doc.setFontType("normal");
+         doc.setFontSize("12");
+         doc.text(80, 130, "" + customername);
+         doc.text(80, 140, "" + customerphone);
+         doc.text(80, 150, "" + customeremail);
+         doc.text(80, 160, "" + aadhar);
+         doc.text(80, 170, "" + customeraddress, { maxWidth: 75, align: 'justify' } );
+         doc.setFontType("bold");
+         doc.setFontSize("16");
+         doc.text(80, 190, "TARIFF PLAN");
+         doc.setFontType("bold");
+         doc.setFontSize("12");
+         doc.text(35, 200, "TARIFF:");
+         doc.text(35, 210, "No of Pax:");
+         doc.text(35, 220, "BOOKING STATUS:");
+         doc.text(35, 230, "If any Inclusions:");
+         doc.text(35, 240, "TOTAL FARE:");
+         doc.text(35, 250, "ADVANCE:");
+         doc.text(35, 260, "BALANCE:");
+         doc.setFontType("normal");
+         doc.setFontSize("12");
+         doc.text(80, 200, "" + tariff);
+         doc.text(80, 210, "" + numberofpax);
+         doc.text(80, 220, "" + bookingstatus);
+         doc.text(80, 230, "" + inclusions);
+         doc.text(80, 240, "" + totalfare);
+         doc.text(80, 250, "" + advanceamt);
+         doc.text(80, 260, "" + balanceamt);
+
+
+         doc.line(10, 10, 200, 10);
+         doc.line(10, 10, 10, 280);
+         doc.line(200, 10, 200, 280);
+         doc.line(10, 280, 200, 280);
+
+         //  new page
+         doc.addPage()
+
+         doc.setFontType("bold");
+         doc.setFontSize("8");
+         doc.text(15, 25, "IMPORTANT NOTES:");
+         doc.setFontType("normal");
+         doc.setFontSize("10");
+         doc.text(20, 30, '\u2022 ' + "ALL BALANCE AMOUNT SHOULD BE CLEARED BEFORE DEPARTURE DATE");
+         doc.text(20, 35, '\u2022 ' + "The primary guest must be at least 18 years of age with a valid photo ID to check into this hotel.");
+         doc.text(20, 40, '\u2022 ' + "Standard check-in time is 12:00 PM and check-out time is 11:00 AM (or as per the hotel's policies).");
+         doc.text(20, 45, '\u2022 ' + "Meal/room plans mentioned in the voucher will be paid by the travel agency. If paying directly, please ensure that you are aware of all such charges that may come as extras.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 55, '\u2022 ' + "Early check-in and late check-out depend on room availability and can only be allotted by the hotel authorities.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 63, '\u2022 ' + "As per government regulations, it is mandatory for all guests above 18 years of age to carry a valid photo ID and address proof at the time of check-in. Failure to abide by this can result in the hotel denying check-in, and hotels normally do not provide any refund for such cancellations.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 75, '\u2022 ' + "Some hotels may have policies that do not allow unmarried/unrelated couples or certain foreign nationalities to check-in without the correct documentation. No refund will be applicable in case the hotel denies check-in under such circumstances. If you have any doubts about this, please call us for assistance.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 90, '\u2022 ' + "Any changes or booking modifications are subject to availability, and charges may apply as per the hotel policies. We will not be responsible for any service issues at the hotel.", { maxWidth: 170, align: 'justify' });
+
+         doc.setFontType("bold");
+         doc.setFontSize("8");
+         doc.text(15, 105, "TERMS & CONDITIONS:");
+         doc.setFontType("normal");
+         doc.setFontSize("10");
+         doc.text(20, 110, '\u2022 ' + "The above rates are calculated on the basis of the mentioned hotels and except for long holidays and long weekends. If the room type is not mentioned, the calculation is based on the base category room in the hotel.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 120, '\u2022 ' + "Booking will be confirmed only after receiving the advance payment and availability of the mentioned hotels.");
+         doc.text(20, 125, '\u2022 ' + "In case of non-availability of a room in the chosen hotel, a similar hotel category will be given to you.");
+         doc.text(20, 130, '\u2022 ' + "Hotels for each category are selected as per the budget and through our feedback system. We suggest you check reviews and locations of hotels mentioned to make sure it is as per your preferences before confirming the package.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 145, '\u2022 ' + " does not have any hidden charges except for your lunch and personal expenses. During the journey, if someone asks for extra money, inform us. We will not be responsible if you pay the amount without our concern.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 160, '\u2022 ' + "Any extra bed/breakfast for kids which is not mentioned must be paid for directly by the guest to hotel.");
+         doc.text(20, 165, '\u2022 ' + " will not be liable for any natural calamities.");
+         doc.text(20, 170, '\u2022 ' + "No accommodation, meal, or cost of transport would be paid, reimbursed, or compensated.");
+         doc.text(20, 175, '\u2022 ' + "All buffet meals/room service will be provided as per the hotel policy.");
+
+         doc.setFontType("bold");
+         doc.setFontSize("8");
+         doc.text(15, 190, "CANCELLATION POLICY:");
+         doc.setFontType("normal");
+         doc.setFontSize("10");
+         doc.text(20, 195, '\u2022 ' + "Cancellation charges of 50% will apply if a confirmed reservation is cancelled between 30 to 15 days from the date of arrival.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 205, '\u2022 ' + "Cancellation charges of 75% will apply if a confirmed reservation is cancelled between 15 to 7 days from the date of arrival.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 215, '\u2022 ' + "Cancellation charges of 100% will apply if a confirmed reservation is cancelled within a week of the date of arrival. If the booking is cancelled 30 days before, then per-person communication service charges of INR 1000/- will be applicable, followed by the cancellation policy.", { maxWidth: 170, align: 'justify' });
+         doc.text(20, 228, '\u2022 ' + "No-shows and early departures will result in 100% of the entire day's charges.");
+
+         doc.line(10, 10, 200, 10);
+         doc.line(10, 10, 10, 300);
+         doc.line(200, 10, 200, 300);
+         doc.line(10, 270, 250, 270);
+         //footer
+         doc.text(30, 275, "Contact us: 9030439059");
+         doc.text(30, 280, "Branches : Hyderabad.");
+         doc.textWithLink("Email: " + "vemurisaisrinivas@gmail.com", 30, 285, { url: 'mailto:vemurisaisrinivas@gmail.com '});
+         doc.textWithLink("Instagram: " + "_vemuri_", 30, 290, { url: 'https://www.instagram.com/_vemuri_'});
+         var filename = bookingid + '-' + customername + '-' + bookingdate + '.pdf';
+         
+         doc.save(filename);
+      }
+  </script>
+</body>
+
+</html>
