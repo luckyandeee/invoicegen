@@ -47,7 +47,7 @@ app.post("/generate-invoice", async (req, res) => {
 
   try {
     const message = `
-    *Travel Confirmation Voucher*
+    *Travel Confirmation Summary*
     
     *Booking Details:*
     - *Receipt ID:* ${bookingid}
@@ -79,7 +79,7 @@ const emailMessage = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Travel Confirmation Voucher</title>
+  <title>Travel Confirmation Summary</title>
   <style>
     /* Inline CSS styles */
     body {
