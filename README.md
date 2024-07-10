@@ -1,4 +1,4 @@
-# Travel Booking / Invoice generator System
+# Travel Invoice generator System
 
 This Node.js application is designed to handle travel booking confirmations by generating invoices, sending emails, and submitting booking details to a Google Form. It offers the following features:
 
