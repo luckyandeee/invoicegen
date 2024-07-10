@@ -15,3 +15,9 @@ This Node.js application is designed to handle travel booking confirmations by g
 - Nodemailer
 - Node-fetch
 
+## File Structure
+
+- `index.js`: The main server file containing the Express app, routes, and helper functions.
+- `public/`: Directory containing static files, including the HTML form.
+- `package.json`: Project metadata and dependencies.
+
